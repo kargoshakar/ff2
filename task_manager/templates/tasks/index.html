@@ -1,0 +1,60 @@
+{% extends "layout.html" %}
+{% load i18n %}
+{% load django_bootstrap5 %}
+{% load task_tags %}
+
+{% block content %}
+    <h1 class="my-4">{% translate "Tasks" %}</h1>
+    <a class="btn btn-primary mb-3" href="{% url 'tasks_create' %}">{% translate "Create task" %}</a>
+    <div class="card mb-3">
+        <div class="card-body bg-light">
+            <form class="form-inline center" method="get">
+                {% for field in filter.form %}
+                    <div class="mb-3">
+                        {% if field.name == 'self_tasks' %}
+                            {% task_filter_field field %}
+                            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {% else %}
+                            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {% task_filter_field field %}
+                        {% endif %}
+                    </div>
+                {% endfor %}
+                {% translate "Show" as filter_button %}
+                {% bootstrap_button button_type="submit" content=filter_button %}
+            </form>
+        </div>
+    </div>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>{% translate "Name" %}</th>
+                <th>{% translate "Status" %}</th>
+                <th>{% translate "Creator" %}</th>
+                <th>{% translate "Performer" %}</th>
+                <th>{% translate "Created at" %}</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in filter.qs %}
+                <tr>
+                    <td>{{ task.id }}</td>
+                    <td>
+                        <a href="{% url 'tasks_show' pk=task.id %}">{{ task.name }}</a>
+                    </td>
+                    <td>{{ task.status }}</td>
+                    <td>{{ task.creator }}</td>
+                    <td>{{ task.executor|default:"" }}</td>
+                    <td>{{ task.created_at|date:'d.m.Y H:i' }}</td>
+                    <td>
+                        <a href="{% url 'tasks_update' pk=task.id %}">{% translate "Edit" %}</a>
+                        <br>
+                        <a href="{% url 'tasks_delete' pk=task.id %}">{% translate "Delete" %}</a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
